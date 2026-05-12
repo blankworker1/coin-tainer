@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coin-tainer Protocol</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg:     #0c0c0c;
+    --sur:    #141414;
+    --bdr:    #222;
+    --orange: #F7931A;
+    --dim:    #F7931A44;
+    --text:   #e2e2e2;
+    --muted:  #666;
+    --faint:  #222;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.35;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 36px;
+    border-bottom: 1px solid var(--bdr);
+    background: rgba(12,12,12,0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  .wordmark {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 0.18em;
+    color: var(--text);
+  }
+  .wordmark em {
+    color: var(--orange); font-style: normal;
+  }
+
+  .header-right {
+    display: flex; align-items: center; gap: 24px;
+  }
+  .nav-link {
+    font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--orange); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 120px 36px 60px;
+    position: relative;
+    text-align: center;
+  }
+
+  /* grid background */
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--faint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--faint) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 80%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 10px; letter-spacing: 0.35em;
+    text-transform: uppercase; color: var(--orange);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 12vw, 140px);
+    line-height: 0.92;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    position: relative; z-index: 1;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.2s forwards;
+  }
+  .hero-title .accent { color: var(--orange); }
+
+  .hero-sub {
+    margin-top: 28px;
+    font-size: 13px; line-height: 1.8;
+    color: var(--muted); max-width: 480px;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.35s forwards;
+  }
+
+  .hero-cta {
+    margin-top: 48px;
+    display: flex; gap: 14px; justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.5s forwards;
+  }
+
+  /* ── BUTTONS ── */
+  .btn-main {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px; letter-spacing: 0.2em;
+    padding: 16px 40px;
+    background: var(--orange);
+    color: #000;
+    border: none; border-radius: 3px;
+    cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: all 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .btn-main::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(247,147,26,0.35); }
+  .btn-main:hover::after { opacity: 0.08; }
+  .btn-main:active { transform: translateY(0); }
+
+  .btn-ghost {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.15em;
+    padding: 16px 32px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--bdr);
+    border-radius: 3px;
+    cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+  /* ── COIN DIAGRAM ── */
+  .coin-diagram {
+    margin-top: 64px;
+    position: relative; z-index: 1;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.65s forwards;
+  }
+
+  /* ── TICKER ── */
+  .ticker {
+    border-top: 1px solid var(--bdr);
+    border-bottom: 1px solid var(--bdr);
+    padding: 12px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    background: var(--sur);
+  }
+  .ticker-inner {
+    display: inline-flex; gap: 48px;
+    animation: ticker 28s linear infinite;
+  }
+  .ticker-item {
+    font-size: 10px; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--muted);
+    flex-shrink: 0;
+  }
+  .ticker-item .hi { color: var(--orange); }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── TWO TIER SECTION ── */
+  .section {
+    padding: 100px 36px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--orange);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: 0.06em;
+    margin-bottom: 48px;
+  }
+
+  .tiers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    border: 1px solid var(--bdr);
+  }
+
+  .tier {
+    padding: 40px 36px;
+    background: var(--sur);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s;
+  }
+  .tier:hover { background: #181818; }
+
+  .tier::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .tier-l::before { background: #1e88e5; }
+  .tier-t::before { background: var(--orange); }
+
+  .tier-tag {
+    font-size: 9px; letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .tier-l .tier-tag { color: #1e88e5; }
+  .tier-t .tier-tag { color: var(--orange); }
+
+  .tier-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px; letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .tier-role {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.1em; margin-bottom: 28px;
+  }
+
+  .tier-facts {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .fact {
+    display: flex; justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--faint);
+    padding-bottom: 10px;
+    font-size: 11px;
+  }
+  .fact-key { color: var(--muted); letter-spacing: 0.08em; }
+  .fact-val { color: var(--text); text-align: right; }
+  .fact-val.orange { color: var(--orange); }
+  .fact-val.blue { color: #1e88e5; }
+
+  /* ── THREE PILLARS ── */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    border: 1px solid var(--bdr);
+  }
+
+  .pillar {
+    padding: 36px 28px;
+    background: var(--sur);
+  }
+
+  .pillar-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px; line-height: 1;
+    color: var(--faint);
+    margin-bottom: 16px;
+  }
+
+  .pillar-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 0.1em;
+    color: var(--orange);
+    margin-bottom: 10px;
+  }
+
+  .pillar-body {
+    font-size: 11px; color: var(--muted);
+    line-height: 1.8; letter-spacing: 0.04em;
+  }
+
+  /* ── LIFECYCLE ── */
+  .lifecycle {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    border: 1px solid var(--bdr);
+  }
+
+  .lc-item {
+    padding: 32px 28px;
+    background: var(--sur);
+    text-align: center;
+  }
+
+  .lc-icon {
+    font-size: 32px; margin-bottom: 14px;
+  }
+
+  .lc-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px; letter-spacing: 0.1em;
+    margin-bottom: 8px; color: var(--text);
+  }
+
+  .lc-body {
+    font-size: 10px; color: var(--muted);
+    line-height: 1.8; letter-spacing: 0.05em;
+  }
+
+  /* ── ENROL CTA ── */
+  .enrol-band {
+    border-top: 1px solid var(--bdr);
+    border-bottom: 1px solid var(--bdr);
+    background: var(--sur);
+    padding: 80px 36px;
+    text-align: center;
+  }
+
+  .enrol-band .big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 7vw, 88px);
+    letter-spacing: 0.06em;
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .enrol-band .big .accent { color: var(--orange); }
+
+  .enrol-band .sub {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.1em; margin-bottom: 40px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 36px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--bdr);
+    flex-wrap: wrap; gap: 12px;
+  }
+
+  .footer-mark {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px; letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+  .footer-mark em { color: var(--orange); font-style: normal; }
+
+  .footer-right {
+    font-size: 10px; color: var(--muted);
+    letter-spacing: 0.15em; text-align: right;
+    line-height: 1.8;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    .tiers, .pillars, .lifecycle { grid-template-columns: 1fr; }
+    header { padding: 14px 20px; }
+    .hero { padding: 100px 20px 48px; }
+    .section { padding: 64px 20px; }
+    .enrol-band { padding: 60px 20px; }
+    footer { flex-direction: column; text-align: center; }
+    .footer-right { text-align: center; }
+    .header-right .nav-link:not(.btn-main) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="wordmark">COIN&#8209;<em>TAINER</em></div>
+  <div class="header-right">
+    <a href="#protocol" class="nav-link">Protocol</a>
+    <a href="#tiers" class="nav-link">Type L / T</a>
+    <a href="enrol.html" class="btn-main" style="font-size:13px;padding:10px 22px;">Enrol a coin →</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Veritas in Numeris · Est. 2024</div>
+  <h1 class="hero-title">
+    PHYSICAL<br>
+    <span class="accent">BITCOIN</span><br>
+    BEARER COIN
+  </h1>
+  <p class="hero-sub">
+    Two coins. One protocol. Reclaimed plastic.
+    Digital scarcity made tangible — from daily
+    Lightning transactions to 21-year time-locked value stores.
+  </p>
+  <div class="hero-cta">
+    <a href="enrol.html" class="btn-main">
+      ◈ Enrol Type T coin
+    </a>
+    <a href="#protocol" class="btn-ghost">
+      Read the protocol
+    </a>
+  </div>
+
+  <!-- Coin SVG diagram -->
+  <div class="coin-diagram">
+    <svg width="260" height="130" viewBox="0 0 260 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Type L coin -->
+      <circle cx="65" cy="65" r="52" fill="#141414" stroke="#1e88e5" stroke-width="1.5"/>
+      <circle cx="65" cy="65" r="44" fill="#0c0c0c" stroke="#222" stroke-width="1"/>
+      <!-- plastic texture lines -->
+      <line x1="30" y1="40" x2="100" y2="90" stroke="#1a1a1a" stroke-width="6"/>
+      <line x1="20" y1="65" x2="110" y2="55" stroke="#191919" stroke-width="4"/>
+      <!-- NFC recess -->
+      <circle cx="65" cy="65" r="12" fill="#141414" stroke="#1e88e5" stroke-width="1" stroke-dasharray="2 2"/>
+      <text x="65" y="70" text-anchor="middle" font-family="'Bebas Neue'" font-size="9" fill="#1e88e5" letter-spacing="1">NFC</text>
+      <!-- rim -->
+      <circle cx="65" cy="65" r="52" fill="none" stroke="#333" stroke-width="3"/>
+      <!-- label -->
+      <text x="65" y="128" text-anchor="middle" font-family="'DM Mono'" font-size="9" fill="#555" letter-spacing="2">TYPE L</text>
+      <text x="65" y="13" text-anchor="middle" font-family="'DM Mono'" font-size="8" fill="#1e88e5" letter-spacing="1">LIGHTNING</text>
+
+      <!-- Type T coin -->
+      <circle cx="195" cy="65" r="52" fill="#141414" stroke="#F7931A" stroke-width="1.5"/>
+      <circle cx="195" cy="65" r="44" fill="#0c0c0c" stroke="#222" stroke-width="1"/>
+      <!-- mottled surface -->
+      <circle cx="175" cy="48" r="8" fill="#171717"/>
+      <circle cx="210" cy="55" r="11" fill="#161616"/>
+      <circle cx="185" cy="75" r="7" fill="#181818"/>
+      <circle cx="205" cy="80" r="9" fill="#151515"/>
+      <circle cx="168" cy="70" r="6" fill="#191919"/>
+      <!-- QR hint on rear -->
+      <rect x="179" y="49" width="32" height="32" rx="2" fill="none" stroke="#F7931A" stroke-width="0.8" stroke-dasharray="2 2"/>
+      <rect x="182" y="52" width="5" height="5" fill="#F7931A" opacity="0.4"/>
+      <rect x="182" y="59" width="3" height="3" fill="#F7931A" opacity="0.4"/>
+      <rect x="189" y="52" width="3" height="3" fill="#F7931A" opacity="0.4"/>
+      <rect x="193" y="56" width="5" height="5" fill="#F7931A" opacity="0.4"/>
+      <rect x="199" y="52" width="5" height="5" fill="#F7931A" opacity="0.4"/>
+      <rect x="186" y="65" width="3" height="3" fill="#F7931A" opacity="0.4"/>
+      <rect x="196" y="68" width="4" height="4" fill="#F7931A" opacity="0.4"/>
+      <!-- rim -->
+      <circle cx="195" cy="65" r="52" fill="none" stroke="#444" stroke-width="3"/>
+      <!-- label -->
+      <text x="195" y="128" text-anchor="middle" font-family="'DM Mono'" font-size="9" fill="#555" letter-spacing="2">TYPE T</text>
+      <text x="195" y="13" text-anchor="middle" font-family="'DM Mono'" font-size="8" fill="#F7931A" letter-spacing="1">TIMELOCK</text>
+    </svg>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-inner">
+    <span class="ticker-item">BITCOIN BEARER INSTRUMENT</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">RECLAIMED PLASTIC SUBSTRATE</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">NTAG213 / NTAG424</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">BLOCK 1,951,500 · 22 MAY 2046</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">ANTI-SEIGNIORAGE</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">OPTICAL PUF · PHYSICAL UNCLONABLE FUNCTION</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">LIGHTNING NETWORK · ON-CHAIN BITCOIN</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">VERITAS IN NUMERIS</span>
+    <span class="ticker-item hi">·</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item">BITCOIN BEARER INSTRUMENT</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">RECLAIMED PLASTIC SUBSTRATE</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">NTAG213 / NTAG424</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">BLOCK 1,951,500 · 22 MAY 2046</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">ANTI-SEIGNIORAGE</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">OPTICAL PUF · PHYSICAL UNCLONABLE FUNCTION</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">LIGHTNING NETWORK · ON-CHAIN BITCOIN</span>
+    <span class="ticker-item hi">·</span>
+    <span class="ticker-item">VERITAS IN NUMERIS</span>
+    <span class="ticker-item hi">·</span>
+  </div>
+</div>
+
+<!-- PROTOCOL PILLARS -->
+<section class="section" id="protocol">
+  <div class="section-label">The Protocol</div>
+  <h2 class="section-title">FOUR PILLARS</h2>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-num">01</div>
+      <div class="pillar-title">Finite Digital Scarcity</div>
+      <div class="pillar-body">Bitcoin. 21 million units. Proof-of-work. The nothing is a representation of real-world energy.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">02</div>
+      <div class="pillar-title">Anti-Seigniorage</div>
+      <div class="pillar-body">The maker adds zero value. The maker is a craftsman providing a vessel for a fee. Only the holder infuses value.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">03</div>
+      <div class="pillar-title">The Physical Mirror</div>
+      <div class="pillar-body">A bearer instrument that reflects human existence. No permission required to hold, move, or verify.</div>
+    </div>
+    <div class="pillar" style="grid-column: span 1">
+      <div class="pillar-num">04</div>
+      <div class="pillar-title">Material Honesty</div>
+      <div class="pillar-body">Reclaimed waste plastic. Written off by society — transformed into a vessel for the hardest money ever created. The waste is the point.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TWO TIERS -->
+<section class="section" id="tiers" style="padding-top:0">
+  <div class="section-label">One Protocol</div>
+  <h2 class="section-title">TWO TIERS</h2>
+  <div class="tiers">
+
+    <div class="tier tier-l">
+      <div class="tier-tag">Type L · The Coin</div>
+      <div class="tier-name">LIGHTNING</div>
+      <div class="tier-role">The circulation instrument</div>
+      <div class="tier-facts">
+        <div class="fact">
+          <span class="fact-key">Chip</span>
+          <span class="fact-val blue">NTAG213</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Layer</span>
+          <span class="fact-val">Lightning Network</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Plastic</span>
+          <span class="fact-val">Single colour — uniform</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Spend</span>
+          <span class="fact-val blue">Immediately</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Denominations</span>
+          <span class="fact-val">Red · Blue · Green · White · Black</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Optical PUF</span>
+          <span class="fact-val">—</span>
+        </div>
+        <div class="fact" style="border:none;padding:0">
+          <span class="fact-key">Verification</span>
+          <span class="fact-val">Tap · NFC · Lightning redeem</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tier tier-t">
+      <div class="tier-tag">Type T · The Note</div>
+      <div class="tier-name">TIMELOCK</div>
+      <div class="tier-role">The preservation instrument</div>
+      <div class="tier-facts">
+        <div class="fact">
+          <span class="fact-key">Chip</span>
+          <span class="fact-val orange">NTAG424</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Layer</span>
+          <span class="fact-val">Bitcoin base chain</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Plastic</span>
+          <span class="fact-val">Multi-colour mottled — unique</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Spend</span>
+          <span class="fact-val orange">Block 1,951,500 · ~22 May 2046</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Key access</span>
+          <span class="fact-val">NFC · QR · Web</span>
+        </div>
+        <div class="fact">
+          <span class="fact-key">Optical PUF</span>
+          <span class="fact-val orange">Yes — provenance record</span>
+        </div>
+        <div class="fact" style="border:none;padding:0">
+          <span class="fact-key">Birth cert</span>
+          <span class="fact-val">OP_RETURN on Bitcoin mainnet</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- LIFECYCLE -->
+<section class="section" style="padding-top:0">
+  <div class="section-label">Value</div>
+  <h2 class="section-title">THREE FATES</h2>
+  <div class="lifecycle">
+    <div class="lc-item">
+      <div class="lc-icon">⟳</div>
+      <div class="lc-title">Utilisation</div>
+      <div class="lc-body">The physical exchange of the bearer instrument, or the return of value to the network. The coin fulfils its purpose.</div>
+    </div>
+    <div class="lc-item">
+      <div class="lc-icon">◼</div>
+      <div class="lc-title">Destruction</div>
+      <div class="lc-body">The obliteration of the container. Sats permanently removed from the effective supply. A deflationary event.</div>
+    </div>
+    <div class="lc-item">
+      <div class="lc-icon">∿</div>
+      <div class="lc-title">Loss</div>
+      <div class="lc-body">The digital shipwreck. The coin exists but cannot be reached. Value remains part of the 21-million-unit truth, silently.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ENROL CTA -->
+<div class="enrol-band">
+  <div class="big">ENROL A<br><span class="accent">TYPE T</span><br>COIN</div>
+  <p class="sub">Generate keypair · Write NTAG424 · Export engraving SVG</p>
+  <a href="enrol.html" class="btn-main" style="font-size:18px;padding:18px 52px;">
+    ◈ &nbsp;Open enrolment tool
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-mark">COIN&#8209;<em>TAINER</em> PROTOCOL</div>
+  <div class="footer-right">
+    VERITAS IN NUMERIS · EST. 2024<br>
+    OPEN SOURCE · ZERO TRUST · NO PERMISSION REQUIRED
+  </div>
+</footer>
+
+</body>
+</html>
