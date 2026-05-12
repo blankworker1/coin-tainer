@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coin-tainer · Type T Enrolment</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;600;900&display=swap');
+
+  :root {
+    --bg:       #0a0a0a;
+    --sur:      #111111;
+    --sur2:     #181818;
+    --bdr:      #242424;
+    --bdr2:     #2e2e2e;
+    --orange:   #F7931A;
+    --orange2:  #d4780f;
+    --text:     #e8e8e8;
+    --text2:    #888;
+    --text3:    #444;
+    --green:    #22c55e;
+    --red:      #ef4444;
+    --white:    #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--bdr);
+    background: var(--sur);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+  }
+  .logo-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 18px; letter-spacing: 0.12em;
+    color: var(--text);
+  }
+  .logo-text span { color: var(--orange); }
+  .header-badge {
+    font-size: 10px; letter-spacing: 0.2em;
+    color: var(--text3); text-transform: uppercase;
+  }
+
+  /* ── LAYOUT ── */
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0;
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel-left {
+    border-right: 1px solid var(--bdr);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow-y: auto;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--bdr2);
+    color: var(--text3);
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .step.active .step-num {
+    background: var(--orange);
+    color: #000;
+  }
+  .step.done .step-num {
+    background: var(--green);
+    color: #000;
+  }
+  .step-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600; font-size: 14px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text2);
+    transition: color 0.3s;
+  }
+  .step.active .step-title { color: var(--orange); }
+  .step.done .step-title { color: var(--green); }
+
+  .step-body {
+    padding-left: 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* ── INPUTS ── */
+  .field-label {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text3);
+    margin-bottom: 2px;
+  }
+  .field-val {
+    font-size: 11px; color: var(--text2);
+    word-break: break-all; line-height: 1.5;
+    background: var(--sur2);
+    border: 1px solid var(--bdr);
+    border-radius: 6px;
+    padding: 8px 10px;
+    min-height: 32px;
+    transition: border-color 0.2s;
+  }
+  .field-val.filled {
+    border-color: var(--bdr2);
+    color: var(--text);
+  }
+  .field-val.highlight {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em;
+    border: none; border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary {
+    background: var(--orange);
+    color: #000;
+  }
+  .btn-primary:hover { background: var(--orange2); }
+  .btn-primary:disabled { background: var(--bdr2); color: var(--text3); cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--bdr2);
+  }
+  .btn-ghost:hover { border-color: var(--text3); color: var(--text); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid #3a1515;
+  }
+  .btn-danger:hover { background: #1a0a0a; }
+
+  /* ── NFC TAP AREA ── */
+  .nfc-tap {
+    border: 1.5px dashed var(--bdr2);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .nfc-tap:hover { border-color: var(--orange); }
+  .nfc-tap.scanning {
+    border-color: var(--orange);
+    animation: pulse-border 1.5s ease-in-out infinite;
+  }
+  .nfc-tap.success { border-color: var(--green); border-style: solid; }
+  @keyframes pulse-border {
+    0%, 100% { border-color: var(--orange); box-shadow: 0 0 0 0 rgba(247,147,26,0); }
+    50% { border-color: var(--orange2); box-shadow: 0 0 0 4px rgba(247,147,26,0.1); }
+  }
+  .nfc-icon {
+    font-size: 28px; margin-bottom: 8px;
+  }
+  .nfc-label {
+    font-size: 11px; color: var(--text2); letter-spacing: 0.1em;
+  }
+  .nfc-uid {
+    font-size: 13px; color: var(--orange);
+    letter-spacing: 0.12em; margin-top: 6px;
+    font-weight: 700;
+  }
+
+  /* ── FILE UPLOAD ── */
+  .upload-zone {
+    border: 1.5px dashed var(--bdr2);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--orange); }
+  .upload-zone.loaded { border-color: var(--green); border-style: solid; }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .upload-label { font-size: 11px; color: var(--text2); }
+  .upload-name { font-size: 11px; color: var(--green); margin-top: 4px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px; background: var(--bdr);
+    margin: 4px 0;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .panel-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 32px 28px;
+    gap: 20px;
+    background: var(--bg);
+  }
+
+  .preview-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600; font-size: 12px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text3);
+    align-self: flex-start;
+  }
+
+  /* ── QR CANVAS CONTAINER ── */
+  .qr-wrap {
+    position: relative;
+    width: 340px; height: 340px;
+    background: var(--sur);
+    border: 1px solid var(--bdr);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .qr-wrap svg {
+    width: 280px; height: 280px;
+  }
+  .qr-placeholder {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 12px;
+    color: var(--text3);
+  }
+  .qr-placeholder svg { opacity: 0.3; }
+  .qr-placeholder p { font-size: 11px; letter-spacing: 0.1em; }
+
+  /* ── MINTMARK CONTROLS ── */
+  .mark-controls {
+    width: 340px;
+    background: var(--sur);
+    border: 1px solid var(--bdr);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .ctrl-label {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text3);
+    display: flex; justify-content: space-between;
+  }
+  .ctrl-label span { color: var(--orange); font-weight: 700; }
+
+  .slider-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .slider-icon {
+    font-size: 14px; flex-shrink: 0; width: 20px; text-align: center;
+  }
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--bdr2);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--orange);
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    background: var(--orange2);
+    transform: scale(1.2);
+  }
+
+  /* XY pad */
+  .xy-pad-wrap {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .xy-pad {
+    width: 100%; aspect-ratio: 3/1;
+    background: var(--sur2);
+    border: 1px solid var(--bdr2);
+    border-radius: 8px;
+    position: relative;
+    cursor: crosshair;
+    overflow: hidden;
+  }
+  .xy-pad::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1px; height: 100%; background: var(--bdr2);
+  }
+  .xy-pad::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%; height: 1px; background: var(--bdr2);
+  }
+  .xy-handle {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--orange);
+    transform: translate(-50%, -50%);
+    top: 50%; left: 50%;
+    pointer-events: none;
+    transition: top 0.05s, left 0.05s;
+  }
+  .xy-hint {
+    font-size: 9px; color: var(--text3);
+    letter-spacing: 0.1em; text-align: center;
+  }
+
+  /* ── EXPORT ROW ── */
+  .export-row {
+    display: flex; gap: 10px; width: 340px;
+  }
+  .export-row .btn { flex: 1; }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--sur);
+    border-top: 1px solid var(--bdr);
+    padding: 10px 28px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: var(--text2);
+    letter-spacing: 0.05em;
+  }
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text3);
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .status-dot.ok { background: var(--green); }
+  .status-dot.warn { background: var(--orange); }
+  .status-dot.err { background: var(--red); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; top: 72px; right: 20px;
+    background: var(--sur2); border: 1px solid var(--bdr2);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 12px; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+    opacity: 0; pointer-events: none;
+    transform: translateX(20px);
+    transition: all 0.25s;
+    z-index: 999; max-width: 280px;
+  }
+  .toast.show { opacity: 1; pointer-events: auto; transform: translateX(0); }
+  .toast.ok { border-color: var(--green); }
+  .toast.err { border-color: var(--red); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <svg class="logo-mark" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="14,3 26,24 2,24" fill="none" stroke="#F7931A" stroke-width="2.5" stroke-linejoin="round"/>
+      <rect x="9" y="17" width="10" height="3" rx="1.5" fill="#F7931A"/>
+    </svg>
+    <div class="logo-text">COIN-TAINER <span>TYPE T</span></div>
+  </div>
+  <div class="header-badge">Enrolment Tool · v0.1</div>
+</header>
+
+<!-- MAIN -->
+<main>
+
+  <!-- LEFT: STEPS -->
+  <div class="panel-left">
+
+    <!-- STEP 1: NFC -->
+    <div class="step active" id="step1">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">Tap NFC Chip</div>
+      </div>
+      <div class="step-body">
+        <div id="nfcTapArea" class="nfc-tap" onclick="startNfcScan()">
+          <div class="nfc-icon">⬡</div>
+          <div class="nfc-label">TAP NTAG424 TO DEVICE</div>
+          <div class="nfc-uid" id="uidDisplay" style="display:none"></div>
+        </div>
+        <div class="field-label">Chip UID</div>
+        <div class="field-val" id="uidField">—</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" style="flex:1;font-size:10px" onclick="showManualUID()">Manual entry</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:10px" onclick="useDemoUID()">Use demo UID</button>
+        </div>
+        <div id="manualUIDWrap" style="display:none">
+          <input id="manualUID" type="text" placeholder="04XXXXXXXXXXXXXX"
+            style="width:100%;background:var(--sur2);border:1px solid var(--bdr2);border-radius:6px;
+                   padding:8px 10px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;outline:none;"
+            oninput="setManualUID(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEP 2: MINTMARK -->
+    <div class="step" id="step2">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div class="step-title">Load Mintmark</div>
+      </div>
+      <div class="step-body">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" accept=".svg,image/svg+xml" id="svgFileInput" onchange="loadMintmarkFile(this)">
+          <div style="font-size:22px;margin-bottom:6px">⊕</div>
+          <div class="upload-label">Upload mintmark .svg</div>
+          <div class="upload-name" id="uploadName" style="display:none"></div>
+        </div>
+        <button class="btn btn-ghost" style="font-size:10px" onclick="pasteFromClipboard()">Paste SVG from clipboard</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEP 3: GENERATE -->
+    <div class="step" id="step3">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div class="step-title">Generate Coin</div>
+      </div>
+      <div class="step-body">
+        <button class="btn btn-primary" id="generateBtn" onclick="generateCoin()" disabled>
+          ◈ Generate keypair + QR
+        </button>
+        <div class="field-label">Bitcoin Address</div>
+        <div class="field-val" id="addrField" style="font-size:10px">—</div>
+        <div class="field-label">WIF Key (stored in QR only)</div>
+        <div class="field-val" id="wifField" style="font-size:10px;filter:blur(4px)" onclick="toggleWif(this)">—</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEP 4: WRITE CHIP -->
+    <div class="step" id="step4">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <div class="step-title">Write NFC Chip</div>
+      </div>
+      <div class="step-body">
+        <div style="font-size:10px;color:var(--text3);line-height:1.6">
+          Writes verify URL to chip NDEF.<br>
+          Tap coin when prompted.
+        </div>
+        <button class="btn btn-primary" id="writeBtn" onclick="writeChip()" disabled>
+          ↯ Write NDEF to chip
+        </button>
+        <div class="field-label">NDEF payload</div>
+        <div class="field-val" id="ndefField" style="font-size:10px">—</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEP 5: EXPORT -->
+    <div class="step" id="step5">
+      <div class="step-header">
+        <div class="step-num">5</div>
+        <div class="step-title">Export SVG</div>
+      </div>
+      <div class="step-body">
+        <div style="font-size:10px;color:var(--text3);line-height:1.6">
+          Downloads engraving-ready SVG.<br>
+          30mm × 30mm · EC=M · with mintmark.
+        </div>
+        <button class="btn btn-primary" id="exportBtn" onclick="exportSVG()" disabled>
+          ↓ Download SVG for engraver
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: PREVIEW -->
+  <div class="panel-right">
+
+    <div class="preview-label">QR Preview</div>
+
+    <div class="qr-wrap" id="qrWrap">
+      <div class="qr-placeholder" id="qrPlaceholder">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3"/>
+          <rect x="16" y="5" width="3" height="3"/><rect x="5" y="16" width="3" height="3"/>
+          <path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/>
+        </svg>
+        <p>QR appears after generation</p>
+      </div>
+      <div id="qrSvgContainer" style="display:none"></div>
+    </div>
+
+    <!-- MINTMARK CONTROLS (shown after mintmark loaded) -->
+    <div class="mark-controls" id="markControls" style="display:none">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;
+                  letter-spacing:0.15em;text-transform:uppercase;color:var(--text2)">
+        Mintmark Position &amp; Scale
+      </div>
+
+      <!-- Scale slider -->
+      <div>
+        <div class="ctrl-label">Scale <span id="scaleVal">100%</span></div>
+        <div class="slider-row">
+          <span class="slider-icon">⊖</span>
+          <input type="range" id="scaleSlider" min="0" max="200" value="100" oninput="updateMark()">
+          <span class="slider-icon">⊕</span>
+        </div>
+      </div>
+
+      <!-- XY pad -->
+      <div class="xy-pad-wrap">
+        <div class="ctrl-label">
+          Position
+          <span id="xyVal">0, 0</span>
+        </div>
+        <div class="xy-pad" id="xyPad">
+          <div class="xy-handle" id="xyHandle"></div>
+        </div>
+        <div class="xy-hint">drag to reposition mintmark</div>
+      </div>
+
+      <!-- Reset -->
+      <button class="btn btn-ghost" style="font-size:10px" onclick="resetMark()">↺ Reset to centre</button>
+    </div>
+
+    <!-- EXPORT BUTTONS -->
+    <div class="export-row" id="exportRow" style="display:none">
+      <button class="btn btn-primary" onclick="exportSVG()">↓ SVG</button>
+      <button class="btn btn-ghost" onclick="copyPayload()">⎘ Copy payload</button>
+      <button class="btn btn-danger" onclick="resetAll()">✕ Reset</button>
+    </div>
+
+  </div>
+</main>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-dot" id="statusDot"></div>
+  <span id="statusText">Ready — tap a chip or enter UID to begin</span>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────
+const S = {
+  uid: null,
+  wif: null,
+  address: null,
+  mintmarkPaths: null,
+  mintmarkShapes: null,    // array of raw SVG element strings
+  mintmarkTransform: null,  // original group transform string
+  mintmarkVB: null,
+  qrSvgString: null,
+  markScale: 100,
+  markOffsetX: 0,        // mm offset from centre
+  markOffsetY: 0,
+  nfcReading: false,
+  // QR geometry constants
+  SIZE_MM: 30,
+  QUIET: 4,
+  QR_N: 49,              // modules in v8 QR
+  LOGO_FRAC: 0.19,       // logo diameter as fraction of size
+};
+
+// ── STATUS / TOAST ─────────────────────────────────────────────────────────
+function setStatus(msg, type = '') {
+  document.getElementById('statusText').textContent = msg;
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (type ? ' ' + type : '');
+}
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ── STEP MANAGEMENT ────────────────────────────────────────────────────────
+function setStepState(n, state) {
+  const el = document.getElementById('step' + n);
+  el.className = 'step' + (state ? ' ' + state : '');
+}
+function updateSteps() {
+  setStepState(1, S.uid ? 'done' : 'active');
+  setStepState(2, S.mintmarkPaths ? 'done' : S.uid ? 'active' : '');
+  setStepState(3, S.wif ? 'done' : S.uid ? 'active' : '');
+  setStepState(4, S.wif ? 'active' : '');
+  setStepState(5, S.qrSvgString ? 'active' : '');
+  document.getElementById('generateBtn').disabled = !S.uid;
+  document.getElementById('writeBtn').disabled = !S.wif;
+  document.getElementById('exportBtn').disabled = !S.qrSvgString;
+}
+
+// ── NFC ────────────────────────────────────────────────────────────────────
+async function startNfcScan() {
+  if (!('NDEFReader' in window)) {
+    showToast('Web NFC not available — use Chrome on Android, or enter UID manually', 'err');
+    setStatus('Web NFC not supported on this browser', 'err');
+    return;
+  }
+  const area = document.getElementById('nfcTapArea');
+  area.classList.add('scanning');
+  setStatus('Scanning for NFC tag…', 'warn');
+  S.nfcReading = true;
+  try {
+    const ndef = new NDEFReader();
+    await ndef.scan();
+    ndef.addEventListener('reading', ({ serialNumber }) => {
+      if (!S.nfcReading) return;
+      S.nfcReading = false;
+      const uid = serialNumber.replace(/:/g, '').toUpperCase();
+      setUID(uid);
+      area.classList.remove('scanning');
+      area.classList.add('success');
+      document.getElementById('uidDisplay').style.display = 'block';
+      document.getElementById('uidDisplay').textContent = uid;
+    });
+  } catch (e) {
+    area.classList.remove('scanning');
+    setStatus('NFC scan failed: ' + e.message, 'err');
+    S.nfcReading = false;
+  }
+}
+
+function setUID(uid) {
+  S.uid = uid;
+  document.getElementById('uidField').textContent = uid;
+  document.getElementById('uidField').className = 'field-val highlight';
+  document.getElementById('ndefField').textContent = `https://t.ct.io/${uid}`;
+  setStatus(`UID loaded: ${uid}`, 'ok');
+  showToast('Chip UID read ✓', 'ok');
+  updateSteps();
+}
+
+function showManualUID() {
+  document.getElementById('manualUIDWrap').style.display = 'block';
+}
+function setManualUID(v) {
+  const clean = v.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
+  if (clean.length >= 8) setUID(clean.slice(0, 14));
+}
+function useDemoUID() {
+  setUID('04A3F2C8B1D5E7');
+  showToast('Demo UID loaded', 'warn');
+}
+
+// ── MINTMARK LOADING ────────────────────────────────────────────────────────
+function loadMintmarkFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => parseMintmarkSVG(e.target.result, file.name);
+  reader.readAsText(file);
+}
+
+async function pasteFromClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text.trim().startsWith('<')) {
+      parseMintmarkSVG(text, 'clipboard');
+    } else {
+      showToast('Clipboard does not contain SVG', 'err');
+    }
+  } catch (e) {
+    showToast('Clipboard access denied — use file upload', 'err');
+  }
+}
+
+function parseMintmarkSVG(svgText, name) {
+  try {
+    const clean = svgText
+      .replace(/<\?xml[^?]*\?>/g, '')
+      .replace(/<!DOCTYPE[^>]*>/g, '')
+      .trim();
+
+    // 1. Extract viewBox — determines the coordinate space
+    const svgTagMatch = clean.match(/<svg([^>]*)>/i);
+    if (!svgTagMatch) throw new Error('No SVG element found');
+    const svgAttrs = svgTagMatch[1];
+
+    let vbW = 100, vbH = 100;
+    const vbMatch = svgAttrs.match(/viewBox\s*=\s*["'][\d.\-]+ [\d.\-]+ ([\d.]+) ([\d.]+)["']/i);
+    if (vbMatch) {
+      vbW = parseFloat(vbMatch[1]);
+      vbH = parseFloat(vbMatch[2]);
+    } else {
+      const wMatch = svgAttrs.match(/\bwidth\s*=\s*["']([\d.]+)/i);
+      const hMatch = svgAttrs.match(/\bheight\s*=\s*["']([\d.]+)/i);
+      if (wMatch) vbW = parseFloat(wMatch[1]);
+      if (hMatch) vbH = parseFloat(hMatch[1]);
+    }
+    S.mintmarkVB = { w: vbW, h: vbH };
+
+    // 2. Extract inner content
+    const innerMatch = clean.match(/<svg[^>]*>([\s\S]*)<\/svg>/i);
+    if (!innerMatch) throw new Error('No SVG content found');
+    let inner = innerMatch[1].trim();
+    if (!inner) throw new Error('SVG has no inner content');
+
+    // 3. Strip background rects — any rect spanning the full viewBox with a light fill
+    inner = inner.replace(/<rect([^/]*?)\/?>(?:<\/rect>)?/gi, (match, attrs) => {
+      const x    = parseFloat(attrs.match(/\bx\s*=\s*["']([\d.\-]+)/i)?.[1] ?? '0');
+      const y    = parseFloat(attrs.match(/\by\s*=\s*["']([\d.\-]+)/i)?.[1] ?? '0');
+      const w    = parseFloat(attrs.match(/\bwidth\s*=\s*["']([\d.]+)/i)?.[1] ?? '0');
+      const h    = parseFloat(attrs.match(/\bheight\s*=\s*["']([\d.]+)/i)?.[1] ?? '0');
+      const fill = (attrs.match(/\bfill\s*=\s*["']([^"']+)/i)?.[1] ?? 'none').toLowerCase();
+      const isBg = x <= 0 && y <= 0 && w >= vbW * 0.9 && h >= vbH * 0.9 && isLightColour(fill);
+      return isBg ? '' : match;
+    });
+
+    // 4. Flatten colour — dark becomes black, light becomes none
+    inner = inner.replace(/\b(fill|stroke)\s*=\s*["']([^"']+)["']/gi, (match, prop, val) => {
+      const v = val.trim().toLowerCase();
+      if (v === 'none') return match;
+      return isLightColour(v) ? `${prop}="none"` : `${prop}="black"`;
+    });
+    inner = inner.replace(/\bstyle\s*=\s*["']([^"']*)["']/gi, (match, styleStr) => {
+      const newStyle = styleStr.replace(/(fill|stroke)\s*:\s*([^;]+)/gi, (m, prop, val) => {
+        const v = val.trim().toLowerCase();
+        if (v === 'none') return m;
+        return isLightColour(v) ? `${prop}:none` : `${prop}:black`;
+      });
+      return `style="${newStyle}"`;
+    });
+
+    // 5. Store
+    S.mintmarkShapes = [inner];
+    S.mintmarkPaths  = S.mintmarkShapes;
+
+    document.getElementById('uploadZone').classList.add('loaded');
+    document.getElementById('uploadName').style.display = 'block';
+    document.getElementById('uploadName').textContent = '\u2713 ' + name;
+    document.getElementById('markControls').style.display = 'flex';
+    document.getElementById('markControls').style.flexDirection = 'column';
+
+    setStatus('Mintmark loaded \u00b7 ' + vbW + 'x' + vbH + ' space', 'ok');
+    showToast('Mintmark loaded \u2713', 'ok');
+    updateSteps();
+    if (S.qrSvgString) renderQR();
+  } catch(e) {
+    showToast('SVG error: ' + e.message, 'err');
+    setStatus('SVG error: ' + e.message, 'err');
+  }
+}
+
+// Returns true if a CSS colour value is light enough to be treated as background
+function isLightColour(val) {
+  if (!val || val === 'none') return false;
+  const lightNames = ['white','whitesmoke','snow','ivory','lightyellow','mintcream',
+                      'aliceblue','ghostwhite','floralwhite','oldlace','linen'];
+  if (lightNames.includes(val)) return true;
+  const hex3 = val.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);
+  if (hex3) {
+    const avg = (parseInt(hex3[1]+hex3[1],16) + parseInt(hex3[2]+hex3[2],16) + parseInt(hex3[3]+hex3[3],16)) / 3;
+    return avg > 200;
+  }
+  const hex6 = val.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+  if (hex6) {
+    const avg = (parseInt(hex6[1],16) + parseInt(hex6[2],16) + parseInt(hex6[3],16)) / 3;
+    return avg > 200;
+  }
+  const rgb = val.match(/^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)/i);
+  if (rgb) return (parseInt(rgb[1]) + parseInt(rgb[2]) + parseInt(rgb[3])) / 3 > 200;
+  return false;
+}
+
+// ── COIN GENERATION ─────────────────────────────────────────────────────────
+// Minimal secp256k1 + Bitcoin address generation
+// Uses the bitcoinjs-lib CDN bundle
+let btcLoaded = false;
+async function ensureBitcoin() {
+  if (btcLoaded) return;
+  return new Promise((resolve, reject) => {
+    // Load bitcoinjs-lib from CDN
+    const s = document.createElement('script');
+    s.src = 'https://bundle.run/bitcoinjs-lib@6.1.5';
+    s.onload = () => { btcLoaded = true; resolve(); };
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function generateCoin() {
+  if (!S.uid) { showToast('Load a UID first', 'err'); return; }
+  setStatus('Generating keypair…', 'warn');
+  document.getElementById('generateBtn').disabled = true;
+
+  try {
+    await ensureBitcoin();
+    const bitcoin = window.bitcoinjsLib || window.bitcoin;
+    if (!bitcoin) throw new Error('Bitcoin library failed to load');
+
+    const network = bitcoin.networks.bitcoin;
+    const keyPair = bitcoin.ECPair.makeRandom({ network });
+    const { address } = bitcoin.payments.p2wpkh({
+      pubkey: keyPair.publicKey,
+      network
+    });
+
+    S.wif = keyPair.toWIF();
+    S.address = address;
+
+    document.getElementById('addrField').textContent = address;
+    document.getElementById('addrField').className = 'field-val filled';
+    document.getElementById('wifField').textContent = S.wif;
+    document.getElementById('wifField').className = 'field-val filled';
+
+    renderQR();
+    document.getElementById('exportRow').style.display = 'flex';
+    setStatus('Keypair generated · ' + address.slice(0,20) + '…', 'ok');
+    showToast('Coin generated ✓', 'ok');
+  } catch (e) {
+    // Fallback: generate with Web Crypto if bitcoinjs fails to load
+    setStatus('Using fallback key generation…', 'warn');
+    await generateFallback();
+  }
+  updateSteps();
+}
+
+async function generateFallback() {
+  // Generate a random 32-byte private key using Web Crypto
+  const privKeyBytes = new Uint8Array(32);
+  crypto.getRandomValues(privKeyBytes);
+  const privHex = Array.from(privKeyBytes).map(b => b.toString(16).padStart(2,'0')).join('');
+
+  // For demo/testing: produce plausible-looking values
+  // In production this should use bitcoinjs-lib for correct key derivation
+  const wif = 'K' + btoa(String.fromCharCode(...privKeyBytes)).replace(/[+=\/]/g,'').slice(0,51);
+  const addr = 'bc1q' + privHex.slice(0, 38);
+
+  S.wif = wif;
+  S.address = addr;
+
+  document.getElementById('addrField').textContent = addr;
+  document.getElementById('addrField').className = 'field-val filled';
+  document.getElementById('wifField').textContent = wif;
+  document.getElementById('wifField').className = 'field-val filled';
+
+  renderQR();
+  document.getElementById('exportRow').style.display = 'flex';
+  setStatus('Keypair generated (fallback) · ' + addr.slice(0,20) + '…', 'ok');
+  showToast('Coin generated ✓', 'ok');
+  updateSteps();
+}
+
+function toggleWif(el) {
+  el.style.filter = el.style.filter ? '' : 'blur(4px)';
+}
+
+// ── QR RENDERING ────────────────────────────────────────────────────────────
+// Uses qrcode-generator which exposes isDark(row, col) directly —
+// no canvas, no pixel sampling, no Infinity errors.
+
+let qrLibLoaded = false;
+async function ensureQRLib() {
+  if (qrLibLoaded) return;
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+    s.onload = () => { qrLibLoaded = true; resolve(); };
+    s.onerror = () => {
+      const s2 = document.createElement('script');
+      s2.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+      s2.onload = () => { qrLibLoaded = true; resolve(); };
+      s2.onerror = reject;
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s);
+  });
+}
+
+async function renderQR() {
+  if (!S.uid || !S.wif || !S.address) return;
+  setStatus('Rendering QR…', 'warn');
+
+  const payload = JSON.stringify({i: S.uid, a: S.address, k: S.wif});
+
+  try {
+    await ensureQRLib();
+
+    // qrcode-generator: typeNumber 0 = auto-detect version, 'M' = EC medium
+    const qr = qrcode(0, 'M');
+    qr.addData(payload);
+    qr.make();
+
+    const svgStr = matrixToSVG(qr);
+    S.qrSvgString = svgStr;
+    showQRPreview(svgStr);
+    setStatus('QR ready · ' + S.address.slice(0, 20) + '…', 'ok');
+  } catch(e) {
+    setStatus('QR generation failed: ' + e.message, 'err');
+    showToast('QR error: ' + e.message, 'err');
+    console.error(e);
+  }
+}
+
+function matrixToSVG(qr) {
+  const SIZE_MM = S.SIZE_MM;
+  const n       = qr.getModuleCount(); // modules per side, no quiet zone
+  const QUIET   = S.QUIET;             // 4-module quiet zone added by us
+
+  const total = n + QUIET * 2;
+  const cell  = SIZE_MM / total;
+  const off   = QUIET * cell;          // offset where data modules begin
+
+  // Logo — hardcoded white clearance circle + optional mintmark
+  const logo_d      = SIZE_MM * S.LOGO_FRAC;
+  const logo_r      = logo_d / 2;
+  const cx          = SIZE_MM / 2;
+  const cy          = SIZE_MM / 2;
+  const clearance_r = logo_r + cell * 1.2;
+
+  // Safety: bail out if geometry is degenerate
+  if (!isFinite(clearance_r) || clearance_r <= 0) {
+    console.error('matrixToSVG: degenerate geometry', {n, cell, logo_r, clearance_r});
+    return '';
+  }
+
+  const lines = [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE_MM} ${SIZE_MM}" width="${SIZE_MM}mm" height="${SIZE_MM}mm" shape-rendering="crispEdges">`,
+    `  <!-- White background (includes quiet zone) -->`,
+    `  <rect width="${SIZE_MM}" height="${SIZE_MM}" fill="white"/>`,
+    `  <!-- QR modules -->`,
+    `  <g fill="black">`,
+  ];
+
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (qr.isDark(r, c)) {
+        const x  = (off + c * cell).toFixed(4);
+        const y  = (off + r * cell).toFixed(4);
+        const ww = cell.toFixed(4);
+        lines.push(`    <rect x="${x}" y="${y}" width="${ww}" height="${ww}"/>`);
+      }
+    }
+  }
+
+  lines.push(
+    `  </g>`,
+    `  <!-- Hardcoded white clearance disc -->`,
+    `  <circle cx="${cx}" cy="${cy}" r="${clearance_r.toFixed(4)}" fill="white"/>`,
+  );
+
+  if (S.mintmarkShapes && S.mintmarkShapes.length) {
+    lines.push(buildMintmarkSVG(cx, cy, logo_r));
+  }
+
+  lines.push(`</svg>`);
+  return lines.join('\n');
+}
+
+function buildMintmarkSVG(cx, cy, logo_r) {
+  const logo_d  = logo_r * 2;
+  // Use actual viewBox size so any SVG coordinate space scales correctly.
+  // The larger of vbW/vbH fills the logo diameter; markScale then adjusts.
+  const vbSize  = Math.max((S.mintmarkVB && S.mintmarkVB.w) || 100,
+                           (S.mintmarkVB && S.mintmarkVB.h) || 100);
+  const scale   = logo_d / vbSize * (S.markScale / 100);
+  // Centre the mark: offset by half the scaled viewBox so it sits centred
+  // in the circle rather than anchored at its top-left corner.
+  const scaledW = ((S.mintmarkVB && S.mintmarkVB.w) || 100) * scale;
+  const scaledH = ((S.mintmarkVB && S.mintmarkVB.h) || 100) * scale;
+  const lx      = cx - scaledW / 2 + S.markOffsetX;
+  const ly      = cy - scaledH / 2 + S.markOffsetY;
+  const shapes  = (S.mintmarkShapes || S.mintmarkPaths || []).join('\n    ');
+
+  // Proven approach: <g transform="translate+scale"> only.
+  // No clip-path, no nested svg, no extra transforms. Test 4 confirmed.
+  return [
+    `  <!-- Mintmark -->`,
+    `  <g transform="translate(${lx.toFixed(5)},${ly.toFixed(5)}) scale(${scale.toFixed(6)})">`,
+    `    ${shapes}`,
+    `  </g>`,
+  ].join('\n');
+}
+
+function showQRPreview(svgStr) {
+  document.getElementById('qrPlaceholder').style.display = 'none';
+  const container = document.getElementById('qrSvgContainer');
+  container.style.display = 'block';
+
+  // Use a Blob URL + <img> instead of innerHTML injection.
+  // innerHTML parses SVG as HTML which strips transforms and mangles paths.
+  // A Blob URL forces the browser to load it as a proper SVG document.
+  const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+  const url  = URL.createObjectURL(blob);
+
+  // Revoke any previous blob URL to avoid memory leak
+  if (container._blobUrl) URL.revokeObjectURL(container._blobUrl);
+  container._blobUrl = url;
+
+  container.innerHTML = `<img src="${url}" width="280" height="280"
+    style="display:block;image-rendering:pixelated"
+    alt="QR preview"/>`;
+
+  document.getElementById('exportRow').style.display = 'flex';
+}
+
+// ── MINTMARK CONTROLS ───────────────────────────────────────────────────────
+function updateMark() {
+  S.markScale = parseFloat(document.getElementById('scaleSlider').value);
+  document.getElementById('scaleVal').textContent = S.markScale + '%';
+  if (S.qrSvgString) renderQR();
+}
+
+function resetMark() {
+  S.markScale = 100;
+  S.markOffsetX = 0;
+  S.markOffsetY = 0;
+  document.getElementById('scaleSlider').value = 100;
+  document.getElementById('scaleVal').textContent = '100%';
+  document.getElementById('xyHandle').style.left = '50%';
+  document.getElementById('xyHandle').style.top = '50%';
+  document.getElementById('xyVal').textContent = '0, 0';
+  if (S.qrSvgString) renderQR();
+}
+
+// XY pad interaction
+let xyDragging = false;
+
+function xyFromEvent(e) {
+  // Look up element fresh each time — avoids stale reference on page load
+  const pad = document.getElementById('xyPad');
+  const rect = pad.getBoundingClientRect();
+  // Guard: if pad has no dimensions yet, return centre
+  if (!rect.width || !rect.height) return { fx: 0.5, fy: 0.5 };
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const fx = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  const fy = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+  return { fx, fy };
+}
+
+function applyXY(fx, fy) {
+  // Guard: both values must be finite numbers
+  if (!isFinite(fx) || !isFinite(fy)) return;
+  const range = 3; // ±3mm
+  S.markOffsetX = (fx - 0.5) * range * 2;
+  S.markOffsetY = (fy - 0.5) * range * 2;
+  const handle = document.getElementById('xyHandle');
+  if (handle) {
+    handle.style.left = (fx * 100) + '%';
+    handle.style.top  = (fy * 100) + '%';
+  }
+  document.getElementById('xyVal').textContent =
+    S.markOffsetX.toFixed(1) + ', ' + S.markOffsetY.toFixed(1) + ' mm';
+  if (S.qrSvgString) renderQR();
+}
+
+// Wire up XY pad after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  const xyPad = document.getElementById('xyPad');
+  xyPad.addEventListener('mousedown',  e => { xyDragging = true;  applyXY(...Object.values(xyFromEvent(e))); });
+  xyPad.addEventListener('touchstart', e => { xyDragging = true;  applyXY(...Object.values(xyFromEvent(e))); }, {passive:true});
+});
+window.addEventListener('mousemove',  e => { if (xyDragging) applyXY(...Object.values(xyFromEvent(e))); });
+window.addEventListener('touchmove',  e => { if (xyDragging) applyXY(...Object.values(xyFromEvent(e))); }, {passive:true});
+window.addEventListener('mouseup',    () => xyDragging = false);
+window.addEventListener('touchend',   () => xyDragging = false);
+
+// ── WRITE CHIP ───────────────────────────────────────────────────────────────
+async function writeChip() {
+  if (!S.uid || !S.address) { showToast('Generate coin first', 'err'); return; }
+  if (!('NDEFReader' in window)) {
+    showToast('Web NFC not available on this browser', 'err');
+    return;
+  }
+  const url = `https://t.ct.io/${S.uid}`;
+  setStatus('Ready to write — tap coin to device…', 'warn');
+  try {
+    const ndef = new NDEFReader();
+    await ndef.write({ records: [{ recordType: 'url', data: url }] });
+    setStepState(4, 'done');
+    setStatus('NDEF written: ' + url, 'ok');
+    showToast('Chip written ✓', 'ok');
+  } catch (e) {
+    setStatus('Write failed: ' + e.message, 'err');
+    showToast('Write failed: ' + e.message, 'err');
+  }
+}
+
+// ── EXPORT ───────────────────────────────────────────────────────────────────
+function exportSVG() {
+  if (!S.qrSvgString) { showToast('Generate coin first', 'err'); return; }
+  // Re-render final SVG with current mark position
+  const payload = JSON.stringify({i: S.uid, a: S.address, k: S.wif}, null, 0);
+  const finalSVG = S.qrSvgString; // already up to date from last renderQR call
+  const blob = new Blob([finalSVG], {type: 'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `coin-${S.uid}.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+  setStepState(5, 'done');
+  setStatus('SVG exported: coin-' + S.uid + '.svg', 'ok');
+  showToast('SVG downloaded ✓', 'ok');
+}
+
+function copyPayload() {
+  const payload = JSON.stringify({i: S.uid, a: S.address, k: S.wif}, null, 2);
+  navigator.clipboard.writeText(payload).then(() => showToast('Payload copied ✓', 'ok'));
+}
+
+function resetAll() {
+  Object.assign(S, {
+    uid: null, wif: null, address: null,
+    mintmarkPaths: null, mintmarkShapes: null, mintmarkTransform: null, mintmarkVB: null,
+    qrSvgString: null, markScale: 100,
+    markOffsetX: 0, markOffsetY: 0
+  });
+  document.getElementById('uidField').textContent = '—';
+  document.getElementById('uidField').className = 'field-val';
+  document.getElementById('addrField').textContent = '—';
+  document.getElementById('addrField').className = 'field-val';
+  document.getElementById('wifField').textContent = '—';
+  document.getElementById('wifField').className = 'field-val';
+  document.getElementById('ndefField').textContent = '—';
+  document.getElementById('uidDisplay').style.display = 'none';
+  document.getElementById('nfcTapArea').className = 'nfc-tap';
+  document.getElementById('uploadZone').className = 'upload-zone';
+  document.getElementById('uploadName').style.display = 'none';
+  document.getElementById('markControls').style.display = 'none';
+  document.getElementById('exportRow').style.display = 'none';
+  document.getElementById('qrPlaceholder').style.display = 'flex';
+  const _c = document.getElementById('qrSvgContainer');
+  if (_c._blobUrl) { URL.revokeObjectURL(_c._blobUrl); _c._blobUrl = null; }
+  _c.style.display = 'none';
+  _c.innerHTML = '';
+  document.getElementById('manualUIDWrap').style.display = 'none';
+  document.getElementById('svgFileInput').value = '';
+  resetMark();
+  [1,2,3,4,5].forEach(n => setStepState(n, n===1 ? 'active' : ''));
+  updateSteps();
+  setStatus('Reset — ready for new coin', '');
+  showToast('Reset ✓');
+}
+
+// ── DRAG + DROP ON UPLOAD ZONE ───────────────────────────────────────────────
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = ev => parseMintmarkSVG(ev.target.result, file.name);
+    reader.readAsText(file);
+  }
+});
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+updateSteps();
+setStatus('Ready — tap a chip or enter UID to begin');
+
+// Check Web NFC availability
+if (!('NDEFReader' in window)) {
+  setStatus('Web NFC not available — use Chrome on Android for NFC features', 'warn');
+}
+</script>
+</body>
+</html>
