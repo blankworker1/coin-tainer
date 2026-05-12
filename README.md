@@ -8,7 +8,7 @@ Three standalone HTML webapps for minting, verifying, and sweeping Type T timelo
 
 ## The Three Tools
 
-### `enrol_fixed.html` — Enrolment Tool
+### `enrol.html` — Enrolment Tool
 
 Mints a new Type T coin. Takes an NTAG424 NFC chip through a six-step workflow and produces a fully provisioned timelocked Bitcoin coin.
 
@@ -19,7 +19,7 @@ Mints a new Type T coin. Takes an NTAG424 NFC chip through a six-step workflow a
 3. **Generate coin** — derives a timelocked P2WSH address from a new random key; cross-verifies address via BitcoinLib
 4. **Birth certificate** — opens opreturnbot.com with the coin payload pre-copied; operator pays Lightning invoice, pastes the returned txid
 5. **Write chip** — writes dual NDEF records to the NTAG424: Record 1 (URL → verify page), Record 2 (JSON payload)
-6. **Export QR** — generates a 30mm SVG QR at EC=M with the mintmark composited in; download for printing on Face B
+6. **Export QR** — generates a 30mm SVG QR at EC=M with the mintmark composited in; download for printing/engraving on Face B
 
 **Key details**
 
@@ -57,7 +57,7 @@ KV schema: `t:{uid}` → `{ address, txid, lockBlock, enrolledAt }`
 
 ---
 
-### `sweep_typeT.html` — Sweep Tool
+### `sweep.html` — Sweep Tool
 
 Spends the timelocked Bitcoin after block 1,951,500. Reconstructs the redeem script from the WIF key, builds a PSBT, pre-signs it, and arms an auto-broadcast trigger that fires the moment the lock expires.
 
