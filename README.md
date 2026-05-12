@@ -17,7 +17,7 @@ Mints a new Type T coin. Takes an NTAG424 NFC chip through a six-step workflow a
 1. **Tap NFC chip** — reads the NTAG424 UID via Web NFC
 2. **Load mintmark** — upload an SVG; the tool strips backgrounds and flattens to black/transparent
 3. **Generate coin** — derives a timelocked P2WSH address from a new random key; cross-verifies address via BitcoinLib
-4. **Birth certificate** — opens opreturnbot.com with the coin payload pre-copied; operator pays Lightning invoice, pastes the returned txid
+4. **Birth certificate** — opens [opreturnbot.com](https://opreturnbot.com/) with the coin payload pre-copied; operator pays Lightning invoice, pastes the returned txid
 5. **Write chip** — writes dual NDEF records to the NTAG424: Record 1 (URL → verify page), Record 2 (JSON payload)
 6. **Export QR** — generates a 30mm SVG QR at EC=M with the mintmark composited in; download for printing/engraving on Face B
 
